@@ -18,3 +18,4 @@ class FeedbackReason(str, Enum):
     TOO_LONG = "TOO_LONG"  # 답변이 너무 김
     NOT_EMPATHETIC = "NOT_EMPATHETIC"  # 공감이 부족함
     IRRELEVANT = "IRRELEVANT"  # 질문과 상관없는 답변
+    OTHER = "OTHER" # 기타(사용자가 수동 입력하는 부분)
