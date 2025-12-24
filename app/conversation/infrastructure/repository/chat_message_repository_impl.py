@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
 from Crypto.Random import get_random_bytes
+
+from app.conversation.infrastructure.orm.chat_message_feedback_orm import ChatFeedbackOrm
 from app.conversation.infrastructure.orm.chat_message_orm import ChatMessageOrm
 
 
@@ -33,6 +35,21 @@ class ChatMessageRepositoryImpl:
     async def find_by_room_id(self, room_id: str):
         return (
             self.db.query(ChatMessageOrm)
+            .filter(ChatMessageOrm.room_id == room_id)
+            .order_by(ChatMessageOrm.id.asc())
+            .all()
+        )
+
+    async def find_by_room_id_with_feedback(self, room_id: str, account_id: int):
+        from app.conversation.infrastructure.orm.chat_message_feedback_orm import ChatFeedbackOrm
+
+        return (
+            self.db.query(ChatMessageOrm, ChatFeedbackOrm.satisfaction)
+            .outerjoin(
+                ChatFeedbackOrm,
+                (ChatMessageOrm.id == ChatFeedbackOrm.message_id) &
+                (ChatFeedbackOrm.account_id == account_id)
+            )
             .filter(ChatMessageOrm.room_id == room_id)
             .order_by(ChatMessageOrm.id.asc())
             .all()

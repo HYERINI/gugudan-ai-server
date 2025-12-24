@@ -10,3 +10,7 @@ class ChatMessageRepositoryPort(ABC):
     @abstractmethod
     async def find_by_room_id(self, room_id: str):
         pass
+
+    @abstractmethod
+    async def find_by_room_id_with_feedback(self, room_id: str, account_id: int):
+        pass

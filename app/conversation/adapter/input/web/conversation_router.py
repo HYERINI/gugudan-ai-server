@@ -43,6 +43,7 @@ async def get_my_rooms(
 @conversation_router.get("/rooms/{room_id}/messages")
 async def get_room_messages(
         room_id: str,
+        account_id: int = Depends(get_current_account_id),
         db: Session = Depends(get_db_session)
 ):
     # 2. 함수 안에서 필요한 리포지토리 생성
@@ -52,7 +53,7 @@ async def get_room_messages(
 
     # 3. UseCase 실행
     uc = GetChatMessagesUseCase(chat_message_repo, crypto_service)
-    return await uc.execute(room_id)
+    return await uc.execute(room_id, account_id)
 
 
 @conversation_router.post("/chat/stream-auto")

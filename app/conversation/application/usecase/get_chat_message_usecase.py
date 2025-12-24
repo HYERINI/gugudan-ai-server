@@ -1,13 +1,13 @@
+from app.conversation.infrastructure.orm.chat_message_feedback_orm import ChatFeedbackOrm
 from app.conversation.infrastructure.repository.chat_message_repository_impl import ChatMessageRepositoryImpl
 from app.config.security.message_crypto import AESEncryption
-
 
 class GetChatMessagesUseCase:
     def __init__(self, chat_message_repo: ChatMessageRepositoryImpl, crypto_service: AESEncryption):
         self.chat_message_repo = chat_message_repo
         self.crypto_service = crypto_service
 
-    async def execute(self, room_id: str):
+    async def execute(self, room_id: str, account_id: int):
         """
         채팅방의 메시지를 조회하고 복호화하여 반환합니다.
         """
@@ -17,6 +17,12 @@ class GetChatMessagesUseCase:
 
         for m in messages:
             content_text = ""
+
+            fb = self.chat_message_repo.db.query(ChatFeedbackOrm).filter(
+                ChatFeedbackOrm.message_id == getattr(m, 'id', None),
+                ChatFeedbackOrm.account_id == account_id
+            ).first()
+            user_feedback_value = fb.satisfaction.value if fb else None
 
             # ORM 객체(m)에서 직접 컬럼에 접근 (getattr를 활용해 안전하게 추출)
             # m.content_enc, m.iv, m.message_id 등의 필드명을 가정합니다.
@@ -46,6 +52,7 @@ class GetChatMessagesUseCase:
                 "content": content_text,
                 "contents_type": getattr(m, 'contents_type', getattr(m, 'content_type', 'TEXT')),
                 "created_at": m.created_at,
+                "user_feedback": user_feedback_value
             })
 
         return decrypted
