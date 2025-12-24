@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 # 전역 객체는 상태가 없는 것들만 유지
 from app.config.call_gpt import CallGPT
-from app.conversation.adapter.input.web.request.chat_feedback_request import ChatFeedback
+from app.conversation.adapter.input.web.request.chat_feedback_request import ChatFeedbackRequest
 from app.conversation.application.usecase.end_chat_usecase import EndChatUseCase
 from app.conversation.application.usecase.get_chat_room_status_usecase import GetChatRoomStatusUseCase
 from app.conversation.application.usecase.delete_chat_usecase import DeleteChatUseCase
@@ -145,31 +145,38 @@ async def get_room_status(
     return {"room_id": room_id, "status": status}
 
 
+# 피드백 생성 (POST)
 @conversation_router.post("/feedback")
 async def add_feedback(
-        feedback: ChatFeedback,
+        feedback_req: ChatFeedbackRequest,
+        account_id: int = Depends(get_current_account_id),
         db: Session = Depends(get_db_session)
 ):
     chat_feedback_repo = ChatFeedbackRepositoryImpl(db)
     use_case = ChatFeedbackUsecase(chat_feedback_repo)
-    success = await use_case.create_chat_feedback(feedback)
+
+    success = await use_case.execute_feedback(account_id, feedback_req)
 
     if not success:
-        raise HTTPException(status_code=404, detail="존재하지 않는 채팅입니다.")
+        raise HTTPException(status_code=400, detail="피드백 저장에 실패했습니다.")
 
-    return {"message": "피드백이 성공적으로 반영되었습니다."}
+    return {"message": "피드백이 성공적으로 등록되었습니다."}
 
 
+# 피드백 수정 (PUT/PATCH)
 @conversation_router.put("/feedback")
 async def update_feedback(
-        feedback: ChatFeedback,
+        feedback_req: ChatFeedbackRequest,
+        account_id: int = Depends(get_current_account_id),
         db: Session = Depends(get_db_session)
 ):
     chat_feedback_repo = ChatFeedbackRepositoryImpl(db)
     use_case = ChatFeedbackUsecase(chat_feedback_repo)
-    success = await use_case.update_chat_feedback(feedback)
+
+    # 수정 로직 실행
+    success = await use_case.execute_feedback(account_id, feedback_req)
 
     if not success:
-        raise HTTPException(status_code=404, detail="존재하지 않는 채팅입니다.")
+        raise HTTPException(status_code=404, detail="수정할 피드백을 찾을 수 없습니다.")
 
-    return {"message": "피드백이 성공적으로 반영되었습니다."}
+    return {"message": "피드백이 성공적으로 수정되었습니다."}

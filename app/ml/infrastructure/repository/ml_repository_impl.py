@@ -5,7 +5,7 @@ from sqlalchemy import literal
 from sqlalchemy.orm import Session, aliased
 
 from app.config.database.session import get_db_session
-from app.conversation.infrastructure.orm.chat_message_feedback_orm import MessageFeedbackModel
+from app.conversation.infrastructure.orm.chat_message_feedback_orm import ChatFeedbackOrm
 from app.conversation.infrastructure.orm.chat_message_orm import ChatMessageOrm
 from app.ml.application.port.ml_repository_port import MLRepositoryPort
 from app.ml.domain.output_message import CounselRow
@@ -54,12 +54,12 @@ class MLRepositoryImpl(MLRepositoryPort):
                     m1.created_at.label("created_at"),
                 )
                 .join(m2, m1.room_id == m2.room_id)
-                .join(MessageFeedbackModel, m2.id == MessageFeedbackModel.message_id)
+                .join(ChatFeedbackOrm, m2.id == ChatFeedbackOrm.message_id)
                 .filter(
                     m1.role == "USER",
                     m2.role == "ASSISTANT",
                     m2.parent_id == m1.id,
-                    MessageFeedbackModel.satisfaction == "SATISFIED",
+                    ChatFeedbackOrm.satisfaction == "SATISFIED",
                     m1.created_at >= start_dt,
                     m1.created_at < end_dt,
                 )
@@ -76,12 +76,12 @@ class MLRepositoryImpl(MLRepositoryPort):
                     m2.created_at.label("created_at"),
                 )
                 .join(m1, m1.room_id == m2.room_id)
-                .join(MessageFeedbackModel, m2.id == MessageFeedbackModel.message_id)
+                .join(ChatFeedbackOrm, m2.id == ChatFeedbackOrm.message_id)
                 .filter(
                     m1.role == "USER",
                     m2.role == "ASSISTANT",
                     m2.parent_id == m1.id,
-                    MessageFeedbackModel.satisfaction == "SATISFIED",
+                    ChatFeedbackOrm.satisfaction == "SATISFIED",
                     m2.created_at >= start_dt,
                     m2.created_at < end_dt,
                 )

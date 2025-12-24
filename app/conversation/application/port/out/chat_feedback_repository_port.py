@@ -1,36 +1,15 @@
 from abc import ABC, abstractmethod
-from datetime import datetime
+from app.conversation.domain.chat_feedback.entity import ChatFeedback
 
-from app.conversation.domain.chat_feedback.enums import SatisfiedStatus
-
-
-class ChatFeedbackRepositoryPort(ABC):
-
+class ChatFeedbackRepository(ABC):
     @abstractmethod
-    async def create_chat_feedback(
-            self,
-            id: int | None,
-            message_id: int,
-            account_id: int,
-            satisfaction: SatisfiedStatus,
-            emotion_label: int | None,
-            emotion_score: float | None,
-            feedback_text: int | None,
-            created_at: datetime | None = None,
-
-    ) -> str:
+    async def add_feedback(self, feedback: ChatFeedback) -> str:
         pass
 
     @abstractmethod
-    async def update_chat_feedback(
-            self,
-            id: int | None,
-            message_id: int,
-            account_id: int,
-            satisfaction: SatisfiedStatus,
-            emotion_label: int | None,
-            emotion_score: float | None,
-            feedback_text: int | None,
-            created_at: datetime | None = None,
-    ) -> str:
+    async def updated_feedback(self, feedback: ChatFeedback) -> str:
+        pass
+
+    @abstractmethod
+    async def find_by_message_and_account(self, message_id: int, account_id: int) -> ChatFeedback | None:
         pass

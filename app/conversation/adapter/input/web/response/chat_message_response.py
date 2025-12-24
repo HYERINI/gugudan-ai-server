@@ -1,8 +1,9 @@
 from pydantic import BaseModel
-from datetime import datetime
+
+from app.conversation.domain.chat_feedback.enums import Satisfaction
 
 
-class ChatMessageResponse(BaseModel):
-    role: str
-    content: str
-    created_at: datetime
+class ChatFeedbackResponse(BaseModel):
+    message_id: int
+    satisfaction: Satisfaction
+    status: str  # "CREATED" or "UPDATED"

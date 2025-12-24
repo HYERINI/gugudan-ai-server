@@ -1,34 +1,37 @@
-from sqlalchemy import (
-    Column,
-    ForeignKey,
-    Integer,
-    Numeric,
-    DateTime,
-    String,
-    BigInteger,
-    Enum as SAEnum,
-)
-from sqlalchemy.sql import func
-
+from sqlalchemy import Column, Integer, DateTime, ForeignKey, Text, Enum as SqlEnum
+from sqlalchemy.orm import relationship
+from datetime import datetime
 from app.config.database.session import Base
-from app.conversation.domain.chat_feedback.enums import SatisfiedStatus
+from app.conversation.domain.chat_feedback.enums import Satisfaction, FeedbackReason
 
 
-class MessageFeedbackModel(Base):
+class ChatFeedbackOrm(Base):
     __tablename__ = "chat_feedback"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
-    message_id = Column(Integer, ForeignKey("chat_msg.id"))
-    account_id = Column(Integer, ForeignKey("account.id"))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    account_id = Column(Integer, nullable=False)
+
+    message_id = Column(
+        Integer,
+        ForeignKey("chat_msg.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True
+    )
+
     satisfaction = Column(
-        SAEnum(SatisfiedStatus, native_enum=True),
+        SqlEnum(Satisfaction),
         nullable=False,
+        info={"description": "LIKE 또는 DISLIKE"}
     )
-    emotion_label = Column(String(50))
-    emotion_score = Column(Numeric(5, 4))
-    feedback_text = Column(String(1000))
-    created_at = Column(
-        DateTime,
-        server_default=func.now(),
-        nullable=False,
+
+    reason = Column(
+        SqlEnum(FeedbackReason),
+        nullable=True,
+        info={"description": "상세 사유 (선택 사항)"}
     )
+
+    comment = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    message = relationship("ChatMessageOrm", backref="feedback", uselist=False)
