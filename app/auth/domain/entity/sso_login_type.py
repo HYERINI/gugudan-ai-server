@@ -13,6 +13,7 @@ class SSOLoginType(str, Enum):
     GOOGLE = "google"
     KAKAO = "kakao"
     NAVER = "naver"
+    META = "meta"
 
     @classmethod
     def from_string(cls, provider: str) -> "SSOLoginType":

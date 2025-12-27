@@ -7,7 +7,7 @@ from app.common.domain.exceptions import UnsupportedOAuthProviderException
 from app.auth.infrastructure.oauth.google import GoogleOAuthProvider
 from app.auth.infrastructure.oauth.kakao import KakaoOAuthProvider
 from app.auth.infrastructure.oauth.naver import NaverOAuthProvider
-
+from app.auth.infrastructure.oauth.meta import MetaOAuthProvider
 
 class OAuthProviderFactory:
     """Factory for creating OAuth providers.
@@ -20,6 +20,7 @@ class OAuthProviderFactory:
         "google": GoogleOAuthProvider,
         "kakao": KakaoOAuthProvider,
         "naver": NaverOAuthProvider,
+        "meta": MetaOAuthProvider,
     }
 
     @classmethod
@@ -27,7 +28,7 @@ class OAuthProviderFactory:
         """Get an OAuth provider instance by name.
 
         Args:
-            provider_name: Name of the provider (e.g., "google", "kakao", "naver").
+            provider_name: Name of the provider (e.g., "google", "kakao", "naver", "meta").
 
         Returns:
             An instance of the OAuth provider.

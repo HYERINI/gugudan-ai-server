@@ -97,6 +97,7 @@ class BaseOAuthProvider(OAuthProviderPort):
         self,
         access_token: str,
         url: Optional[str] = None,
+        params: Optional[dict] = None,
     ) -> dict:
         """Fetch user info from provider's userinfo endpoint."""
         url = url or self.USERINFO_URL
@@ -106,6 +107,7 @@ class BaseOAuthProvider(OAuthProviderPort):
                 response = await client.get(
                     url,
                     headers={"Authorization": f"Bearer {access_token}"},
+                    params=params,
                 )
                 response.raise_for_status()
                 return response.json()

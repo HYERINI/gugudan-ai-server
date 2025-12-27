@@ -39,6 +39,11 @@ class Settings(BaseSettings):
     NAVER_CLIENT_SECRET: str = ""
     NAVER_REDIRECT_URI: str = ""
 
+    # OAuth - Meta
+    META_CLIENT_ID: str = ""
+    META_CLIENT_SECRET: str = ""
+    META_REDIRECT_URI: str = ""
+
     # Security
     CSRF_SECRET_KEY: str
     COOKIE_SECURE: bool = False  # Set True in production (HTTPS)
