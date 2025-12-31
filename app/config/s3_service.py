@@ -1,4 +1,5 @@
 import boto3
+import asyncio
 import uuid
 import datetime
 from io import BytesIO
@@ -79,7 +80,10 @@ class S3Service:
         if not file_ext:
             file_ext = ".jpg"
 
-        now = datetime.datetime.now()
+        from datetime import timezone, timedelta
+        kst = timezone(timedelta(hours=9))
+        now = datetime.datetime.now(kst)
+
         partition_path = now.strftime("%Y/%m/%d")
         file_name = f"{uuid.uuid4()}{file_ext}"
         full_path = f"chat/{partition_path}/{account_id}/{file_name}"
@@ -129,3 +133,26 @@ class S3Service:
         except Exception:
             # 압축 실패 시 원본 반환 (이미지가 아닌 파일 대비)
             return image_bytes
+
+    async def read_file_content(self, file_path: str) -> str:
+        """확장자 불문, 텍스트 기반 파일의 내용을 최대한 읽어옵니다."""
+        if not file_path: return ""
+        try:
+            path = file_path.split(f"{self.cf_domain}/")[-1] if self.cf_domain in file_path else file_path
+            path = path.lstrip("/")
+
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(None, lambda: self.s3.get_object(Bucket=self.bucket, Key=path))
+            raw_content = response['Body'].read()
+
+            # 인코딩 자동 감지 시도 (utf-8 -> cp949 -> euc-kr)
+            for enc in ['utf-8', 'cp949', 'euc-kr']:
+                try:
+                    return raw_content.decode(enc)
+                except UnicodeDecodeError:
+                    continue
+
+            # 텍스트로 읽기 실패 시 (바이너리 등)
+            return f"[알림: {file_path} 파일은 텍스트로 읽을 수 없는 형식이거나 손상되었습니다.]"
+        except Exception as e:
+            return f"[파일 로드 실패: {str(e)}]"
