@@ -22,7 +22,11 @@ class ChatMessageRepositoryImpl:
                 if not exists:
                     kwargs['parent_id'] = None
 
-            # 3. 객체 생성 및 저장
+            # 3. file_urls 처리
+            file_urls = kwargs.get('file_urls')
+            kwargs['file_urls'] = file_urls if file_urls is not None else []
+
+            # 4. 객체 생성 및 저장
             msg = ChatMessageOrm(**kwargs)
             self.db.add(msg)
             self.db.flush()

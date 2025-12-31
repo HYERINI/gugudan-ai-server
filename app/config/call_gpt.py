@@ -1,11 +1,10 @@
 """OpenAI GPT API 호출 모듈."""
 
 import os
-from typing import Optional, AsyncIterator
+from typing import Optional, AsyncIterator, List, Any
 
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
-from openai.types.chat import ChatCompletionMessageParam
 
 load_dotenv()
 
@@ -31,7 +30,7 @@ def get_async_client() -> AsyncOpenAI:
     return _async_client
 
 
-async def _create_chat_completion_stream(prompt: str) -> AsyncIterator[str]:
+async def _create_chat_completion_stream(prompt: str, file_urls: list[str] = None) -> AsyncIterator[str]:
     """비동기 방식으로 GPT API를 호출합니다.
     
     Args:
@@ -45,17 +44,31 @@ async def _create_chat_completion_stream(prompt: str) -> AsyncIterator[str]:
         Exception: OpenAI API 호출 실패 시
     """
 
-    if not prompt or not prompt.strip():
-        raise ValueError("Prompt cannot be empty")
+    if isinstance(prompt, str):
+        if not prompt.strip():
+            raise ValueError("Prompt cannot be empty")
+        actual_prompt = prompt
+    else:
+        actual_prompt = str(prompt)
 
     client = get_async_client()
+    file_urls = file_urls or []
+
+    # 1. 텍스트와 이미지를 포함한 메시지 구성
+    if not file_urls:
+        content = actual_prompt
+    else:
+        content = [{"type": "text", "text": actual_prompt}]
+        for url in file_urls:
+            content.append({
+                "type": "image_url",
+                "image_url": {"url": url}
+            })
     
     # 타입 안전성을 위해 딕셔너리를 명시적으로 구성
-    message: dict[str, str] = {"role": "user", "content": prompt}
-    messages: list[ChatCompletionMessageParam] = [
-        message  # type: ignore[list-item]
+    messages: List[Any] = [
+        {"role": "user", "content": content}
     ]
-
     try:
         response = await client.chat.completions.create(
             model="gpt-4.1",
@@ -77,7 +90,7 @@ class CallGPT:
     """OpenAI GPT API를 비동기로 호출하는 클래스."""
 
     @staticmethod
-    async def call_gpt(prompt: str) -> AsyncIterator[str]:
+    async def call_gpt(prompt: str, file_urls: list[str] = None) -> AsyncIterator[str]:
         """비동기 방식으로 GPT API를 호출합니다.
         
         Args:
@@ -91,7 +104,7 @@ class CallGPT:
             Exception: OpenAI API 호출 실패 시
         """
         try:
-            async for chunk in _create_chat_completion_stream(prompt):
+            async for chunk in _create_chat_completion_stream(prompt, file_urls):
                 yield chunk
         except Exception as e:
             raise Exception(f"CallGPT 중계 에러: {str(e)}")

@@ -72,6 +72,12 @@ class Settings(BaseSettings):
     QDRANT_COLLECTION_NAME: str = "counsel_data"
     QDRANT_VECTOR_SIZE: int = 384  # sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
 
+    # AWS S3 Settings
+    AWS_ACCESS_KEY_ID: str
+    AWS_SECRET_ACCESS_KEY: str
+    AWS_REGION: str
+    AWS_S3_BUCKET: str
+
     @property
     def is_production(self) -> bool:
         """Check if running in production environment."""

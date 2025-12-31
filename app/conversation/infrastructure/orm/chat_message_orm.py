@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime, LargeBinary, ForeignKey, Index
+from sqlalchemy import Column, String, Integer, DateTime, LargeBinary, ForeignKey, Index, JSON
 from datetime import datetime
 from app.config.database.session import Base
 
@@ -18,6 +18,7 @@ class ChatMessageOrm(Base):
     iv = Column(LargeBinary, nullable=False)
     enc_version = Column(Integer)
     contents_type = Column(String(20))
+    file_urls = Column(JSON, nullable=True, default=list)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # 추가: 부모 메시지 ID (자기 자신을 참조)

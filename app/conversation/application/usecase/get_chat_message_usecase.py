@@ -52,7 +52,8 @@ class GetChatMessagesUseCase:
                 "content": content_text,
                 "contents_type": getattr(m, 'contents_type', getattr(m, 'content_type', 'TEXT')),
                 "created_at": m.created_at,
-                "user_feedback": user_feedback_value
+                "user_feedback": user_feedback_value,
+                "file_urls": getattr(m, 'file_urls', []) or [],
             })
 
         return decrypted
