@@ -25,12 +25,13 @@ class S3Service:
         self.cf_domain = settings.CLOUDFRONT_DOMAIN
         self.cf_key_id = settings.CLOUDFRONT_KEY_ID
 
-        raw_key = settings.CLOUDFRONT_PRIVATE_KEY
-        raw_key = raw_key.strip().strip('"').strip("'")
-
-        raw_key = raw_key.replace("\\n", "\n")
-
-        self.private_key_content = raw_key
+        key_path = settings.CLOUDFRONT_PRIVATE_KEY_PATH
+        try:
+            with open(key_path, 'r') as f:
+                self.private_key_content = f.read().strip()
+        except Exception as e:
+            print(f"❌ Key Load Error: {str(e)}")
+            self.private_key_content = ""
 
     def _rsa_signer(self, message):
         """환경 변수로부터 프라이빗 키를 로드하여 메시지에 서명합니다."""
