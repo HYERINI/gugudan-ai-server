@@ -155,7 +155,7 @@ async def oauth_login(
             value=state,
             httponly=True,
             secure=settings.effective_cookie_secure,
-            samesite="lax",
+            samesite=settings.COOKIE_SAMESITE,
             max_age=600,  # 10 minutes
         )
 
