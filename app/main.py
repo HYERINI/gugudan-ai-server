@@ -16,6 +16,7 @@ from app.account.adapter.input.web.account_router import router as account_route
 from app.ml.adapter.input.web.ml_router import ml_router
 from app.inquiry.adapter.input.web.inquiry_router import router as inquiry_router
 from app.faq.adapter.input.web.faq_router import router as faq_router
+from app.survey.adapter.input.web.survey_router import router as survey_router
 
 from app.account.infrastructure.orm.account_model import AccountModel  # noqa: F401
 from app.conversation.infrastructure.orm.chat_room_orm import ChatRoomOrm
@@ -63,6 +64,7 @@ app.include_router(account_router, prefix="/api/v1")
 app.include_router(ml_router, prefix="/ml")
 app.include_router(inquiry_router, prefix="/api/v1")
 app.include_router(faq_router, prefix="/api/v1")
+app.include_router(survey_router, prefix="/survey")
 
 @app.get("/health")
 async def health_check():
