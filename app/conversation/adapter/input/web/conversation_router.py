@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Body, HTTPException, UploadFile, File
+from fastapi.responses import StreamingResponse
 import uuid
 
 from app.account.adapter.input.web.account_router import get_current_account_id
@@ -15,11 +16,14 @@ from app.conversation.application.usecase.delete_chat_usecase import DeleteChatU
 from app.conversation.application.usecase.get_chat_message_usecase import GetChatMessagesUseCase
 from app.conversation.application.usecase.get_chat_room_usecase import GetChatRoomsUseCase
 from app.conversation.application.usecase.insert_chat_feedback_usecase import ChatFeedbackUsecase
+from app.conversation.application.usecase.summarize_chat_usecase import SummarizeChatUseCase
 from app.conversation.infrastructure.repository.chat_feedback_repository_impl import ChatFeedbackRepositoryImpl
 from app.conversation.infrastructure.repository.chat_room_repository_impl import ChatRoomRepositoryImpl
+from app.conversation.infrastructure.repository.chat_message_repository_impl import ChatMessageRepositoryImpl
 from app.conversation.infrastructure.repository.usage_meter_impl import UsageMeterImpl
 from app.config.security.message_crypto import AESEncryption
 from app.conversation.adapter.output.stream.stream_adapter import StreamAdapter
+from app.conversation.infrastructure.pdf.pdf_generator_service import PDFGeneratorService
 
 crypto_service = AESEncryption()
 llm_chat_port = CallGPT()
@@ -244,3 +248,65 @@ async def get_room_messages(
         })
 
     return result
+
+
+@conversation_router.get("/rooms/{room_id}/summary")
+async def get_chat_summary(
+    room_id: str,
+    account_id: int = Depends(get_current_account_id),
+    db: Session = Depends(get_db_session)
+):
+    """채팅 요약 조회 (JSON)"""
+    chat_room_repo = ChatRoomRepositoryImpl(db)
+    chat_message_repo = ChatMessageRepositoryImpl(db)
+    
+    usecase = SummarizeChatUseCase(
+        chat_room_repo=chat_room_repo,
+        chat_message_repo=chat_message_repo,
+        crypto_service=crypto_service,
+    )
+    
+    result = await usecase.execute(room_id=room_id, account_id=account_id)
+    return result
+
+
+@conversation_router.get("/rooms/{room_id}/summary/pdf")
+async def download_chat_summary_pdf(
+    room_id: str,
+    account_id: int = Depends(get_current_account_id),
+    db: Session = Depends(get_db_session)
+):
+    """채팅 요약 PDF 다운로드"""
+    chat_room_repo = ChatRoomRepositoryImpl(db)
+    chat_message_repo = ChatMessageRepositoryImpl(db)
+    
+    # 요약 생성
+    usecase = SummarizeChatUseCase(
+        chat_room_repo=chat_room_repo,
+        chat_message_repo=chat_message_repo,
+        crypto_service=crypto_service,
+    )
+    
+    summary_result = await usecase.execute(room_id=room_id, account_id=account_id)
+    
+    # PDF 생성
+    pdf_service = PDFGeneratorService()
+    pdf_buffer = pdf_service.generate_summary_pdf(
+        room_title=summary_result["room_title"],
+        summary_text=summary_result["summary"],
+        created_at=summary_result["created_at"],
+        message_count=summary_result["message_count"]
+    )
+    
+    # 파일명 생성 (한글 호환을 위한 URL 인코딩)
+    from urllib.parse import quote
+    safe_title = quote(summary_result["room_title"][:30], safe='')
+    filename = f"chat_summary_{safe_title}_{room_id[:8]}.pdf"
+    
+    return StreamingResponse(
+        pdf_buffer,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"'
+        }
+    )

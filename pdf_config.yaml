@@ -1,0 +1,219 @@
+# PDF 설정 파일
+
+# 브랜딩 정보
+branding:
+  service_name: "러브노트"
+  service_name_en: "Love-Note"
+  tagline: "관계를 정리하는 AI 가이드"
+  footer_text: "© 2024 Love-Note. All rights reserved."
+
+# 색상 설정
+colors:
+  # 메인 브랜드 컬러 (Purple to Pink Gradient)
+  primary: "#9333EA"        # purple-600
+  secondary: "#DB2777"      # pink-600
+  gradient_start: "#9333EA" # purple-600
+  gradient_end: "#DB2777"   # pink-600
+
+  # 텍스트 컬러
+  text_primary: "#1F2937"   # gray-800 (본문)
+  text_secondary: "#6B7280" # gray-500 (보조 텍스트)
+  text_light: "#9CA3AF"     # gray-400
+
+  # 배경 컬러
+  background_light: "#FAFAFA"  # 매우 연한 회색
+  background_gray: "#F9FAFB"   # gray-50
+
+  # 기능별 컬러
+  code_bg: "#F3F4F6"           # gray-100
+  code_text: "#DB2777"         # pink-600
+  quote_bg: "#FDF4FF"          # 연한 보라
+  quote_border: "#E9D5FF"      # purple-200
+  divider: "#F3E8FF"           # purple-100
+
+# 한글 폰트 경로
+fonts:
+  paths:
+    # macOS
+    - '/System/Library/Fonts/Supplemental/AppleGothic.ttf'
+    - '/System/Library/Fonts/Supplemental/AppleMyungjo.ttf'
+    - '/Library/Fonts/Arial Unicode.ttf'
+    # Linux (Ubuntu/Debian)
+    - '/usr/share/fonts/truetype/nanum/NanumGothic.ttf'
+    - '/usr/share/fonts/truetype/nanum/NanumMyeongjo.ttf'
+    # Windows
+    - 'C:\Windows\Fonts\malgun.ttf'
+    - 'C:\Windows\Fonts\gulim.ttc'
+
+  default: 'Helvetica'
+
+# PDF 페이지 설정
+page:
+  size: 'A4'
+  margin_top: 2.5    # cm
+  margin_bottom: 2.5
+  margin_left: 2.5
+  margin_right: 2.5
+
+# ParagraphStyle 상세 설정
+paragraph_styles:
+  # 메인 타이틀 (러브노트 Love-Note)
+  title:
+    font_size: 18
+    bold: true
+    color: 'primary'
+    space_after: 5
+    alignment: 'center'
+
+  # 서브타이틀 (태그라인)
+  subtitle:
+    font_size: 10
+    bold: false
+    color: 'text_secondary'
+    space_after: 20
+    alignment: 'center'
+
+  # 메타 정보 (대화방 제목 등)
+  meta:
+    font_size: 9
+    bold: false
+    color: 'text_primary'
+    background: null  # 배경색 없음
+    left_indent: 0
+    space_after: 3
+    line_height: 14
+
+  # 본문
+  body:
+    font_size: 10
+    bold: false
+    color: 'text_primary'
+    line_height: 15
+    alignment: 'justify'
+    space_after: 0
+
+  # H1 헤더
+  h1:
+    font_size: 14
+    bold: true
+    color: 'text_primary'
+    space_before: 15
+    space_after: 8
+
+  # H2 헤더
+  h2:
+    font_size: 13
+    bold: true
+    color: 'text_primary'
+    space_before: 12
+    space_after: 6
+
+  # H3 헤더
+  h3:
+    font_size: 11
+    bold: true
+    color: 'text_secondary'
+    space_before: 10
+    space_after: 5
+
+  # 코드 블록
+  code:
+    font_size: 8
+    font_name: 'Courier'
+    color: 'text_primary'
+    background: 'code_bg'
+    left_indent: 15
+    right_indent: 15
+    space_before: 8
+    space_after: 8
+    border_width: 1
+    border_color: 'background_gray'
+    border_padding: 10
+
+  # 인용구
+  quote:
+    font_size: 9
+    bold: false
+    color: 'text_secondary'
+    background: 'quote_bg'
+    left_indent: 20
+    right_indent: 10
+    space_before: 8
+    space_after: 8
+    border_width: 0
+    border_left_width: 3
+    border_color: 'quote_border'
+    border_padding: 8
+
+  # 섹션 제목
+  section_title:
+    font_size: 12
+    bold: true
+    color: 'primary'
+    space_before: 15
+    space_after: 8
+
+  # 푸터
+  footer:
+    font_size: 7
+    bold: false
+    color: 'text_light'
+    alignment: 'center'
+
+# 테이블 스타일 설정
+table_style:
+  # 헤더 스타일
+  header:
+    background: null  # 배경색 없음
+    text_color: 'text_primary'
+    font_size: 9
+    bold: true
+    padding: 8
+
+  # 셀 스타일
+  cell:
+    font_size: 9
+    padding: 6
+    text_color: 'text_primary'
+
+  # 테두리
+  border:
+    color: '#E5E7EB'  # 연한 회색
+    width: 0.5
+
+  # 줄무늬 (alternating rows)
+  stripe:
+    enabled: false  # 줄무늬 비활성화
+    even_row_color: '#FFFFFF'
+    odd_row_color: '#FFFFFF'
+
+# 헤더 설정
+header:
+  enabled: true
+  height: 1.5  # cm
+  show_logo: false
+  show_service_name: true
+
+# 푸터 설정
+footer:
+  enabled: true
+  height: 1.0  # cm
+  show_page_number: true
+  show_service_info: true
+
+# 워터마크 설정
+watermark:
+  enabled: true
+  text: "Love-Note"
+  opacity: 0.03
+  color: 'primary'
+  font_size: 50
+  angle: 45
+
+# 구분선 설정
+divider:
+  enabled: true
+  color: 'divider'
+  width: 0.5  # pt
+  space_before: 10
+  space_after: 10

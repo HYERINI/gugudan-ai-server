@@ -31,6 +31,11 @@ class PromptLoader:
             self._prompts['default_guide']
         )
 
+    def get_summary_prompt(self, conversation_text: str) -> str:
+        """채팅 요약 프롬프트 가져오기"""
+        template = self._prompts['summary_prompt']['template']
+        return template.format(conversation_text=conversation_text)
+
 
 # 싱글톤 인스턴스
 prompt_loader = PromptLoader()

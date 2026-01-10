@@ -43,3 +43,6 @@ python-multipart>=0.0.21
 
 # yaml
 pyyaml==6.0.1
+
+# PDF Generation
+reportlab>=4.0.0
